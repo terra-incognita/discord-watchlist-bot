@@ -26,12 +26,25 @@ def format_movie_data(movie_data):
     release_date = movie_data.get('release_date')
     # overview = movie_data.get('overview')
     rating = movie_data.get('vote_average')
-    media_type = movie_data.get('media_type')
+    media_type = 'movie'
     # poster = f"https://image.tmdb.org/t/p/w1280{movie_data.get('poster_path')}"
     id = movie_data.get('id')
     url = f"https://www.themoviedb.org/{media_type}/{id}"
 
     return f":rocket: **Title**: {title} | {original_title} | {name}\n:cricket_game: **Rating**: {rating}\n:calendar: **Release Date**: {release_date}\n:film_frames: **Media Type**: {media_type}\n:link: **URL**: {url}\n-----\n\n\n\n\n\n"
+
+def format_tv_data(data):
+    original_name = data.get('original_name')
+    name = data.get('name')
+    first_air_date = data.get('first_air_date')
+    # overview = data.get('overview')
+    rating = data.get('vote_average')
+    media_type = 'tv'
+    # poster = f"https://image.tmdb.org/t/p/w1280{data.get('poster_path')}"
+    id = data.get('id')
+    url = f"https://www.themoviedb.org/{media_type}/{id}"
+
+    return f":rocket: **Title**: {original_name} | {name}\n:cricket_game: **Rating**: {rating}\n:calendar: **First Air Date**: {first_air_date}\n:film_frames: **Media Type**: {media_type}\n:link: **URL**: {url}\n-----\n\n\n\n\n\n"
 
 
 @bot.event
@@ -145,6 +158,25 @@ async def now_playing(ctx):
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
 
+@bot.command(name='find')
+async def find(ctx, media_type, query, year=None):
+    try:
+        media_type = media_type.lower()
+        if media_type not in ['tv', 'movie']:
+            logger.warn(f'Unknown media type passed to find command: {media_type}')
+            msg = await ctx.send(f'{media_type} is not a recognized media type.')
+            return
+        movie_db = TheMovieDB()
+        response = movie_db.find(media_type, query, year)
+        for result in response.get('results', []):
+            if media_type == 'movie':
+                content = format_movie_data(result)
+            else:
+                content = format_tv_data(result)
+            msg = await ctx.send(content)
+            return
+    except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
 
 @bot.command(name='shutdown')
 @commands.is_owner()  # This ensures only the owner of the bot can use this command

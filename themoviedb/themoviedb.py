@@ -9,13 +9,13 @@ class TheMovieDB:
     def __init__(self):
         load_dotenv(find_dotenv())
         self.logger = logging.getLogger(__name__)
-        self.themoviedb_api_key = os.environ.get("THEMOVIEDB_API_KEY")
+        self.themoviedb_api_token = os.environ.get("THEMOVIEDB_API_TOKEN")
         self.themoviedb_api_url = 'https://api.themoviedb.org/3'
         self.discover_movie_url = f"{self.themoviedb_api_url}/discover/movie"
         self.discover_show_url = f"{self.themoviedb_api_url}/discover/tv"
         self.headers = {
             "accept": "application/json",
-            "Authorization": f"Bearer {self.themoviedb_api_key}"
+            "Authorization": f"Bearer {self.themoviedb_api_token}"
         }
         self.date_7_days_ago = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
         self.todays_date = datetime.now().strftime('%Y-%m-%d')
@@ -88,3 +88,14 @@ class TheMovieDB:
             for item in upcoming.get('results', []):
                 item['media_type'] = media_type
         return upcoming
+
+    def find(self, media_type, query, year):
+        url = f"{self.themoviedb_api_url}/search/{media_type}"
+        params = {
+            'query': query,
+        }
+        if media_type == 'tv':
+            params['first_air_date_year'] = year
+        else:
+            params['primary_release_year'] = year
+        return self.get_themoviedb(url, params)
