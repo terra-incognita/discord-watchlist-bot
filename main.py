@@ -21,13 +21,16 @@ intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 class MediaView(discord.ui.View):
-    def __init__(self):
+    def __init__(self, media_type, media):
         super().__init__(timeout=180)
+        self.media_type = media_type
+        self.media = media
     @discord.ui.button(label="Add to Watchlist", style=discord.ButtonStyle.primary, emoji="➕")
-    async def button_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
+    async def button_callback(self, interaction: discord.Interaction, button: discord.ui.Button):
         button.disabled = True
-        button.label = "Clicked!"
-        await interaction.response.edit_message(content="You clicked the button!", view=self)
+        button.label = "Added!"
+        title = self.media.get('title')
+        await interaction.response.edit_message(content=f"{title} added to {self.media_type} watchlist!", view=self)
 
 def format_movie_data(movie_data):
     title = movie_data.get('title')
@@ -184,7 +187,7 @@ async def find(ctx, media_type, query, year=None):
                 content = format_movie_data(result)
             else:
                 content = format_tv_data(result)
-            msg = await ctx.send(content, view=MediaView())
+            msg = await ctx.send(content, view=MediaView(media_type=media_type, media=result))
             return
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
