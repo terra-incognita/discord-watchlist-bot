@@ -20,6 +20,9 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+def add_to_watchlist(media):
+    return False
+
 class MediaView(discord.ui.View):
     def __init__(self, media_type, media):
         super().__init__(timeout=180)
@@ -27,10 +30,13 @@ class MediaView(discord.ui.View):
         self.media = media
     @discord.ui.button(label="Add to Watchlist", style=discord.ButtonStyle.primary, emoji="➕")
     async def button_callback(self, interaction: discord.Interaction, button: discord.ui.Button):
-        button.disabled = True
-        button.label = "Added!"
         title = self.media.get('title')
-        await interaction.response.edit_message(content=f"{title} added to {self.media_type} watchlist!", view=self)
+        if (add_to_watchlist(self.media)):
+            button.disabled = True
+            button.label = "Added!"
+            await interaction.response.edit_message(content=f"**{title}** added to {self.media_type} watchlist!", view=self)
+        else:
+            await interaction.response.edit_message(content=f"😞 Unable to add **{title}** to {self.media_type} watchlist.", view=self)
 
 def format_movie_data(movie_data):
     title = movie_data.get('title')
