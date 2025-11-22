@@ -1,11 +1,13 @@
 import os
+import logging
 import discord
 from discord.ext import commands
 from themoviedb import TheMovieDB
 from dotenv import find_dotenv, load_dotenv
-import logging
+from sqlalchemy import create_engine
 
 load_dotenv(find_dotenv())
+engine = create_engine("sqlite+pysqlite:///watchlist.db", echo=True)
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -18,6 +20,14 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+class MediaView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=180)
+    @discord.ui.button(label="Add to Watchlist", style=discord.ButtonStyle.primary, emoji="➕")
+    async def button_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
+        button.disabled = True
+        button.label = "Clicked!"
+        await interaction.response.edit_message(content="You clicked the button!", view=self)
 
 def format_movie_data(movie_data):
     title = movie_data.get('title')
@@ -158,6 +168,7 @@ async def now_playing(ctx):
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
 
+
 @bot.command(name='find')
 async def find(ctx, media_type, query, year=None):
     try:
@@ -173,7 +184,7 @@ async def find(ctx, media_type, query, year=None):
                 content = format_movie_data(result)
             else:
                 content = format_tv_data(result)
-            msg = await ctx.send(content)
+            msg = await ctx.send(content, view=MediaView())
             return
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
