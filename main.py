@@ -2,9 +2,11 @@ import os
 import logging
 import discord
 from discord.ext import commands
-from themoviedb import TheMovieDB
 from dotenv import find_dotenv, load_dotenv
 from sqlalchemy import create_engine
+
+from themoviedb import TheMovieDB
+from watchlist.views import MediaView, format_tv_data, format_movie_data
 
 load_dotenv(find_dotenv())
 engine = create_engine("sqlite+pysqlite:///watchlist.db", echo=True)
@@ -19,52 +21,6 @@ DISCORD_MESSAGE_DELETE_AFTER = int(os.environ.get("DISCORD_MESSAGE_DELETE_AFTER"
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
-
-def add_to_watchlist(media):
-    return False
-
-class MediaView(discord.ui.View):
-    def __init__(self, media_type, media):
-        super().__init__(timeout=180)
-        self.media_type = media_type
-        self.media = media
-    @discord.ui.button(label="Add to Watchlist", style=discord.ButtonStyle.primary, emoji="➕")
-    async def button_callback(self, interaction: discord.Interaction, button: discord.ui.Button):
-        title = self.media.get('title')
-        if (add_to_watchlist(self.media)):
-            button.disabled = True
-            button.label = "Added!"
-            await interaction.response.edit_message(content=f"**{title}** added to {self.media_type} watchlist!", view=self)
-        else:
-            await interaction.response.edit_message(content=f"😞 Unable to add **{title}** to {self.media_type} watchlist.", view=self)
-
-def format_movie_data(movie_data):
-    title = movie_data.get('title')
-    original_title = movie_data.get('original_title')
-    name = movie_data.get('name')
-    release_date = movie_data.get('release_date')
-    # overview = movie_data.get('overview')
-    rating = movie_data.get('vote_average')
-    media_type = 'movie'
-    # poster = f"https://image.tmdb.org/t/p/w1280{movie_data.get('poster_path')}"
-    id = movie_data.get('id')
-    url = f"https://www.themoviedb.org/{media_type}/{id}"
-
-    return f":rocket: **Title**: {title} | {original_title} | {name}\n:cricket_game: **Rating**: {rating}\n:calendar: **Release Date**: {release_date}\n:film_frames: **Media Type**: {media_type}\n:link: **URL**: {url}\n-----\n\n\n\n\n\n"
-
-def format_tv_data(data):
-    original_name = data.get('original_name')
-    name = data.get('name')
-    first_air_date = data.get('first_air_date')
-    # overview = data.get('overview')
-    rating = data.get('vote_average')
-    media_type = 'tv'
-    # poster = f"https://image.tmdb.org/t/p/w1280{data.get('poster_path')}"
-    id = data.get('id')
-    url = f"https://www.themoviedb.org/{media_type}/{id}"
-
-    return f":rocket: **Title**: {original_name} | {name}\n:cricket_game: **Rating**: {rating}\n:calendar: **First Air Date**: {first_air_date}\n:film_frames: **Media Type**: {media_type}\n:link: **URL**: {url}\n-----\n\n\n\n\n\n"
-
 
 @bot.event
 async def on_command_error(ctx, error):
