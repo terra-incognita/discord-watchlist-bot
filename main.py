@@ -3,13 +3,11 @@ import logging
 import discord
 from discord.ext import commands
 from dotenv import find_dotenv, load_dotenv
-from sqlalchemy import create_engine
 
 from themoviedb import TheMovieDB
 from watchlist.views import MediaView, format_tv_data, format_movie_data
 
 load_dotenv(find_dotenv())
-engine = create_engine("sqlite+pysqlite:///watchlist.db", echo=True)
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -149,7 +147,7 @@ async def find(ctx, media_type, query, year=None):
                 content = format_movie_data(result)
             else:
                 content = format_tv_data(result)
-            msg = await ctx.send(content, view=MediaView(media_type=media_type, media=result))
+            msg = await ctx.send(content, view=MediaView(media_type=media_type, media=result, author=ctx.author))
             return
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")

@@ -13,8 +13,11 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
+from sqlalchemy import create_engine
 
 import datetime
+
+engine = create_engine("sqlite+pysqlite:///watchlist.db", echo=True)
 
 class Base(DeclarativeBase):
     pass
@@ -95,3 +98,5 @@ class Genre(Base):
         secondaryjoin=id == genre_to_media.c.media_id,
         back_populates="genres"
     )
+
+Base.metadata.create_all(engine)

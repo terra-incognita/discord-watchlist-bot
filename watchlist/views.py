@@ -3,14 +3,15 @@ import discord
 from .actions import add_to_watchlist
 
 class MediaView(discord.ui.View):
-    def __init__(self, media_type, media):
+    def __init__(self, media_type, media, author):
         super().__init__(timeout=180)
         self.media_type = media_type
         self.media = media
+        self.author = author
     @discord.ui.button(label="Add to Watchlist", style=discord.ButtonStyle.primary, emoji="➕")
     async def button_callback(self, interaction: discord.Interaction, button: discord.ui.Button):
         title = media_title(self.media)
-        if (add_to_watchlist(self.media)):
+        if (add_to_watchlist(self.media, self.author)):
             button.disabled = True
             button.label = "Added!"
             await interaction.response.edit_message(content=f"**{title}** added to {self.media_type} watchlist!", view=self)
