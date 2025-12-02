@@ -98,4 +98,8 @@ class TheMovieDB:
             params['first_air_date_year'] = year
         else:
             params['primary_release_year'] = year
-        return self.get_themoviedb(url, params)
+        response = self.get_themoviedb(url, params)
+        # add media type to results
+        for result in response.get('results', []):
+            result['media_type'] = media_type
+        return response

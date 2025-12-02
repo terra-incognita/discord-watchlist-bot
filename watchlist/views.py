@@ -3,9 +3,9 @@ import discord
 from .actions import add_to_watchlist
 
 class MediaView(discord.ui.View):
-    def __init__(self, media_type, media, author):
+    def __init__(self, media, author):
         super().__init__(timeout=180)
-        self.media_type = media_type
+        self.media_type = media['media_type']
         self.media = media
         self.author = author
     @discord.ui.button(label="Add to Watchlist", style=discord.ButtonStyle.primary, emoji="➕")
@@ -43,6 +43,16 @@ def media_title_expanded(media_data):
     if title is None:
         return None
     return title if title == original_title else f"{title} ({original_title})"
+
+
+"""
+Format a TMDB media result
+"""
+def format_media_data(media_data):
+    if media_data['media_type'] == 'movie':
+        return format_movie_data(media_data)
+    else:
+        return format_tv_data(media_data)
 
 def format_movie_data(movie_data):
     title = media_title_expanded(movie_data)

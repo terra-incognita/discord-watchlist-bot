@@ -5,7 +5,7 @@ from discord.ext import commands
 from dotenv import find_dotenv, load_dotenv
 
 from themoviedb import TheMovieDB
-from watchlist.views import MediaView, format_tv_data, format_movie_data
+from watchlist.views import MediaView, format_media_data
 
 load_dotenv(find_dotenv())
 
@@ -27,40 +27,13 @@ async def on_command_error(ctx, error):
     else:
         logger.error(f"An error occurred: {str(error)}")
 
-
-@bot.command(name='hindi_movies')
-async def hindi_movies(ctx):
-    try:
-        movie_db = TheMovieDB()
-        movies = movie_db.get_this_weeks_movies('hindi')
-        for movie in movies.get('results', []):
-            content = format_movie_data(movie)
-            msg = await ctx.send(content)
-            await msg.delete(delay=DISCORD_MESSAGE_DELETE_AFTER)
-    except Exception as e:
-        logger.error(f"An error occurred: {str(e)}")
-
-
-@bot.command(name='hindi_shows')
-async def hindi_shows(ctx):
-    try:
-        movie_db = TheMovieDB()
-        shows = movie_db.get_this_weeks_shows('hindi')
-        for show in shows.get('results', []):
-            content = format_movie_data(show)
-            msg = await ctx.send(content)
-            await msg.delete(delay=DISCORD_MESSAGE_DELETE_AFTER)
-    except Exception as e:
-        logger.error(f"An error occurred: {str(e)}")
-
-
 @bot.command(name='trending')
 async def trending(ctx):
     try:
         movie_db = TheMovieDB()
         trending = movie_db.get_trending('week')
         for trend in trending.get('results', []):
-            content = format_movie_data(trend)
+            content = format_media_data(trend)
             msg = await ctx.send(content)
             await msg.delete(delay=DISCORD_MESSAGE_DELETE_AFTER)
     except Exception as e:
@@ -73,7 +46,7 @@ async def trending_today(ctx):
         movie_db = TheMovieDB()
         trending = movie_db.get_trending('day')
         for trend in trending.get('results', []):
-            content = format_movie_data(trend)
+            content = format_media_data(trend)
             msg = await ctx.send(content)
             await msg.delete(delay=DISCORD_MESSAGE_DELETE_AFTER)
     except Exception as e:
@@ -86,7 +59,7 @@ async def upcoming(ctx):
         movie_db = TheMovieDB()
         upcoming = movie_db.get_upcoming('movie')
         for movie in upcoming.get('results', []):
-            content = format_movie_data(movie)
+            content = format_media_data(movie)
             msg = await ctx.send(content)
             await msg.delete(delay=DISCORD_MESSAGE_DELETE_AFTER)
     except Exception as e:
@@ -99,7 +72,7 @@ async def upcoming(ctx):
         movie_db = TheMovieDB()
         upcoming = movie_db.get_upcoming('tv')
         for movie in upcoming.get('results', []):
-            content = format_movie_data(movie)
+            content = format_media_data(movie)
             msg = await ctx.send(content)
             await msg.delete(delay=DISCORD_MESSAGE_DELETE_AFTER)
     except Exception as e:
@@ -112,7 +85,7 @@ async def now_playing(ctx):
         movie_db = TheMovieDB()
         now_playing = movie_db.get_now_playing('movie')
         for movie in now_playing.get('results', []):
-            content = format_movie_data(movie)
+            content = format_media_data(movie)
             msg = await ctx.send(content)
             await msg.delete(delay=DISCORD_MESSAGE_DELETE_AFTER)
     except Exception as e:
@@ -125,7 +98,7 @@ async def now_playing(ctx):
         movie_db = TheMovieDB()
         now_playing = movie_db.get_now_playing('tv')
         for movie in now_playing.get('results', []):
-            content = format_movie_data(movie)
+            content = format_media_data(movie)
             msg = await ctx.send(content)
             await msg.delete(delay=DISCORD_MESSAGE_DELETE_AFTER)
     except Exception as e:
@@ -143,11 +116,8 @@ async def find(ctx, media_type, query, year=None):
         movie_db = TheMovieDB()
         response = movie_db.find(media_type, query, year)
         for result in response.get('results', []):
-            if media_type == 'movie':
-                content = format_movie_data(result)
-            else:
-                content = format_tv_data(result)
-            msg = await ctx.send(content, view=MediaView(media_type=media_type, media=result, author=ctx.author))
+            content = format_media_data(result)
+            msg = await ctx.send(content, view=MediaView(media=result, author=ctx.author))
             return
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")

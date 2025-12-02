@@ -1,4 +1,6 @@
 import logging
+import json
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.sqlite import insert
@@ -34,6 +36,7 @@ def add_to_watchlist(media, member):
     with Session(engine) as session:
         user = get_db_user(member, session)
         logger.debug(f"User found: {user!r}")
+        logger.debug(json.dumps(media, indent=4, sort_keys=True))
         session.commit()
     return False
 
