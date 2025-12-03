@@ -1,6 +1,7 @@
 import discord
 
 from .actions import add_to_watchlist
+from .utils import media_title, media_title_expanded
 
 class MediaView(discord.ui.View):
     def __init__(self, media, author):
@@ -19,33 +20,6 @@ class MediaView(discord.ui.View):
             await interaction.response.edit_message(content=f"😞 Unable to add **{title}** to {self.media_type} watchlist.", view=self)
 
 """
-Get the English title of a TV show or movie.
-"""
-def media_title(media_data):
-    if 'title' in media_data:
-        title = media_data.get('title')
-        return title
-    elif 'name' in media_data:
-        name = media_data.get('name')
-        return name
-    return None
-
-"""
-Get the English and original title of a TV show or movie.
-"""
-def media_title_expanded(media_data):
-    if 'title' in media_data:
-        title = media_data.get('title')
-        original_title = media_data.get('original_title')
-    elif 'name' in media_data:
-        title = media_data.get('name')
-        original_title = media_data.get('original_name')
-    if title is None:
-        return None
-    return title if title == original_title else f"{title} ({original_title})"
-
-
-"""
 Format a TMDB media result
 """
 def format_media_data(media_data):
@@ -54,6 +28,9 @@ def format_media_data(media_data):
     else:
         return format_tv_data(media_data)
 
+"""
+Format a TMDB movie result
+"""
 def format_movie_data(movie_data):
     title = media_title_expanded(movie_data)
     release_date = movie_data.get('release_date')
@@ -66,6 +43,9 @@ def format_movie_data(movie_data):
 
     return f":rocket: **Title**: {title}\n:cricket_game: **Rating**: {rating}\n:calendar: **Release Date**: {release_date}\n:film_frames: **Media Type**: {media_type}\n:link: **URL**: {url}\n-----\n\n\n\n\n\n"
 
+"""
+Format a TMDB TV program result
+"""
 def format_tv_data(data):
     title = media_title_expanded(data)
     name = data.get('name')

@@ -45,8 +45,6 @@ class User(Base):
     voted_media: Mapped[List["Media"]] = relationship(
         "Media",
         secondary=votes,
-        primaryjoin=id == votes.c.user_id,
-        secondaryjoin=id == votes.c.media_id,
         back_populates="voters"
     )
     def __repr__(self) -> str:
@@ -72,15 +70,11 @@ class Media(Base):
     genres: Mapped[List["Genre"]] = relationship(
         "Genre",
         secondary=genre_to_media,
-        primaryjoin=id == genre_to_media.c.media_id,
-        secondaryjoin=id == genre_to_media.c.genre_id,
         back_populates="media_list"
     )
     voters: Mapped[List["User"]] = relationship(
         "User",
         secondary=votes,
-        primaryjoin=id == votes.c.media_id,
-        secondaryjoin=id == votes.c.user_id,
         back_populates="voted_media"
     )
     def __repr__(self) -> str:
@@ -94,8 +88,6 @@ class Genre(Base):
     media_list: Mapped[List["Media"]] = relationship(
         "Media",
         secondary=genre_to_media,
-        primaryjoin=id == genre_to_media.c.genre_id,
-        secondaryjoin=id == genre_to_media.c.media_id,
         back_populates="genres"
     )
 
